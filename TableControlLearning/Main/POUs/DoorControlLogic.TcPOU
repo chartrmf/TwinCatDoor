@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.18">
+  <POU Name="DoorControlLogic" Id="{5d89914e-5fc5-4bf5-a467-154940aa51ec}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM DoorControlLogic
+VAR
+	{attribute 'OPC.UA.DA' := '1'}	
+	chart_cssd_door_Status						:	BOOL;	// Status of door contact - True:Open | False:Close
+	
+	{attribute 'OPC.UA.DA' := '1'}	
+	chart_cssd_door_Open_Command	AT %I*		: 	BOOL;	// Open Door 1 command from robot
+
+	{attribute 'OPC.UA.DA' := '1'}			
+	chart_cssd_door_Close_Command	AT %I*		:	BOOL	:= FALSE;	// Close Door 1 command from robot, init to be false
+
+	{attribute 'OPC.UA.DA' := '1'}		
+	chart_cssd_door_Opened_Signal	AT %I*		:	BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}		
+	chart_cssd_door_Closed_Signal	AT %I*		: 	BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}		
+	chart_cssd_door_Hold			AT %Q*		: 	BOOL;
+	
+	chart_cssd_door_Contact			AT %Q* 		: 	BOOL	:= FALSE;	// Output to close door contact, init to be false
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF chart_cssd_door_Close_Command = TRUE AND NOT chart_cssd_door_Open_Command = TRUE THEN
+	chart_cssd_door_Contact := FALSE;
+	chart_cssd_door_Hold := FALSE; 
+	ELSIF chart_cssd_door_Open_Command = TRUE AND chart_cssd_door_Close_Command = FALSE THEN
+		chart_cssd_door_Contact := TRUE;
+		chart_cssd_door_Hold := TRUE;		
+		ELSIF chart_cssd_door_Open_Command = TRUE AND chart_cssd_door_Close_Command = TRUE THEN
+			chart_cssd_door_Contact := FALSE;
+			chart_cssd_door_Hold := FALSE;
+			chart_cssd_door_Open_Command := FALSE;
+			ELSIF chart_cssd_door_Open_Command := FALSE AND chart_cssd_door_Close_Command = FALSE THEN
+				chart_cssd_door_Contact := FALSE;
+				chart_cssd_door_Hold := FALSE;
+				chart_cssd_door_Open_Command := FALSE;
+//			ELSIF chart_cssd_door_Open_Command := FALSE AND chart_cssd_door_Close_Command = TRUE THEN
+//				chart_cssd_door_Contact := TRUE;
+//				chart_cssd_door_Hold := TRUE;
+//				chart_cssd_door_Open_Command := TRUE; Commented out as conditions are the same as first condition
+	END_IF
+
+IF chart_cssd_door_Opened_Signal = TRUE AND chart_cssd_door_Closed_Signal = FALSE THEN
+	chart_cssd_door_Status := TRUE;
+	ELSIF chart_cssd_door_Closed_Signal = TRUE AND chart_cssd_door_Opened_Signal = FALSE THEN
+		chart_cssd_door_Status := FALSE;
+		ELSE
+			chart_cssd_door_Status := FALSE;
+	END_IF
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="DoorControlLogic">
+      <LineId Id="69" Count="1" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="87" Count="1" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="90" Count="1" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="222" Count="2" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="193" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="144" Count="1" />
+      <LineId Id="165" Count="1" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="66" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
